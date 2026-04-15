@@ -1,0 +1,218 @@
+﻿// <copyright file="MainWindow.cs" company="HW4">
+// <copyright file="MainWindow.cs" company="WSU">
+// Copyright (c) WSU. All rights reserved.
+// </copyright>
+
+namespace HW4
+{
+    using SpreadsheetEngine;
+    using System.ComponentModel;
+    using System.Windows.Forms;
+    using SpreadsheetEngine;
+
+    /// <summary>
+    /// The main application window containing the spreadsheet grid.
+    /// </summary>
+    public partial class MainWindow : Form
+    {
+        /// <summary>
+        /// The spreadsheet logic engine backing the grid.
+        /// </summary>
+        private readonly Spreadsheet spreadsheet;
+
+        private readonly ContextMenuStrip cellContextMenu;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MainWindow"/> class.
+        /// </summary>
+        public MainWindow()
+        {
+            this.InitializeComponent();
+            this.spreadsheet = new Spreadsheet(50, 26);
+            this.spreadsheet.CellPropertyChanged += this.OnCellPropertyChanged;
+            this.spreadsheet.Manager.UndoRedoStateChanged += this.OnUndoRedoStateChanged;
+            this.Grid.CellBeginEdit += this.Grid_CellBeginEdit;
+            this.Grid.CellEndEdit += this.Grid_CellEndEdit;
+            this.Grid.MouseClick += this.Grid_MouseClick;
+            this.InitializeGrid();
+
+            // Set initial state of undo/redo buttons
+            this.UndoButton.Enabled = false;
+            this.RedoButton.Enabled = false;
+            this.UndoToolStripMenuItem.Enabled = false;
+            this.RedoToolStripMenuItem.Enabled = false;
+
+            // Initialize context menu for cells
+            this.cellContextMenu = new ContextMenuStrip();
+            this.cellContextMenu.Items.Add("Change Background Color", null, this.OnContextChangeColor);
+        }
+
+        /// <summary>
+        /// Clears and rebuilds the grid with 26 columns (A–Z) and 50 numbered rows.
+        /// </summary>
+        private void InitializeGrid()
+        {
+            this.Grid.Columns.Clear();
+            this.Grid.Rows.Clear();
+
+            // Add 26 letter columns (A-Z)
+            char letter = 'A';
+            for (int i = 0; i < 26; i++)
+            {
+                this.Grid.Columns.Add(letter.ToString(), letter.ToString());
+                letter++;
+            }
+
+            // Add 50 numbered rows
+            for (int i = 1; i <= 50; i++)
+            {
+                this.Grid.Rows.Add();
+                this.Grid.Rows[i - 1].HeaderCell.Value = i.ToString();
+            }
+        }
+
+        /// <summary>
+        /// Handles the demo button click. Populates random cells, column B, and column A with formulas.
+        /// </summary>
+        /// <param name="sender">The button that was clicked.</param>
+        /// <param name="e">The event arguments.</param>
+        private void Button1_Click(object sender, EventArgs e)
+        {
+            Random rand = new ();
+
+            // Set ~50 random cells to "Hello World!"
+            for (int i = 0; i < 50; i++)
+            {
+                int row = rand.Next(0, 50);
+                int col = rand.Next(0, 26);
+                this.spreadsheet.GetCell(row, col)!.Text = "Hello World!";
+            }
+
+            // Set every cell in column B (index 1) to "This is cell B#"
+            for (int row = 0; row < 50; row++)
+            {
+                this.spreadsheet.GetCell(row, 1)!.Text = $"This is cell B{row + 1}";
+            }
+
+            // Set every cell in column A (index 0) to "=B#" so it mirrors column B
+            for (int row = 0; row < 50; row++)
+            {
+                this.spreadsheet.GetCell(row, 0)!.Text = $"=B{row + 1}";
+            }
+        }
+
+        /// <summary>
+        /// Handles the spreadsheet's CellPropertyChanged event and updates the grid UI.
+        /// </summary>
+        /// <param name="sender">The cell whose property changed.</param>
+        /// <param name="e">The event arguments containing the property name.</param>
+        private void OnCellPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (sender is Cell cell)
+            {
+                if (e.PropertyName == "Value" || e.PropertyName == "Text")
+                {
+                    this.Grid.Rows[cell.RowIndex].Cells[cell.ColumnIndex].Value = cell.Value;
+                }
+                else if (e.PropertyName == "Color")
+                {
+                    this.Grid.Rows[cell.RowIndex].Cells[cell.ColumnIndex].Style.BackColor = System.Drawing.Color.FromArgb((int)cell.Color);
+                }
+            }
+        }
+
+        private void OnUndoRedoStateChanged(object? sender, Command command)
+        {
+            this.UndoButton.Enabled = this.spreadsheet.Manager.CanUndo();
+            this.RedoButton.Enabled = this.spreadsheet.Manager.CanRedo();
+            this.UndoToolStripMenuItem.Enabled = this.spreadsheet.Manager.CanUndo();
+            this.RedoToolStripMenuItem.Enabled = this.spreadsheet.Manager.CanRedo();
+            this.UndoToolStripMenuItem.Text = $"Undo {this.spreadsheet.Manager.GetUndoPurpose()}";
+            this.RedoToolStripMenuItem.Text = $"Redo {this.spreadsheet.Manager.GetRedoPurpose()}";
+        }
+
+        /// <summary>
+        /// Handles the grid's CellEndEdit event and pushes the edited value to the logic engine.
+        /// </summary>
+        /// <param name="sender">The grid control.</param>
+        /// <param name="e">The event arguments containing the row and column index.</param>
+        private void Grid_CellEndEdit(object sender, DataGridViewCellEventArgs e)
+        {
+            object? editedValue = this.Grid.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
+            Cell? cell = this.spreadsheet.GetCell(e.RowIndex, e.ColumnIndex);
+            if (cell != null)
+            {
+                CommandBus.Send(new SpreadsheetEngine.CellUpdateCommand<string>(
+                    cell, "Text", cell.Text, editedValue?.ToString() ?? string.Empty, "Edit Cell Text"));
+            }
+        }
+
+        /// <summary>
+        /// Handles the grid's CellBeginEdit event and shows the raw cell text for editing.
+        /// </summary>
+        /// <param name="sender">The grid control.</param>
+        /// <param name="e">The event arguments containing the row and column index.</param>
+        private void Grid_CellBeginEdit(object sender, DataGridViewCellCancelEventArgs e)
+        {
+            Cell? cell = this.spreadsheet.GetCell(e.RowIndex, e.ColumnIndex);
+            if (cell != null)
+            {
+                this.Grid.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = cell.Text;
+            }
+        }
+
+        private void UndoButton_Click(object? sender, EventArgs e)
+        {
+            CommandBus.SendRevision(new SpreadsheetEngine.RevisionCommand("UNDO"));
+        }
+
+        private void RedoButton_Click(object? sender, EventArgs e)
+        {
+            CommandBus.SendRevision(new SpreadsheetEngine.RevisionCommand("REDO"));
+        }
+
+        private void MenuStrip_ItemClicked(object? sender, ToolStripItemClickedEventArgs e)
+        {
+        }
+
+        private void UndoToolStripMenuItem_Click(object? sender, EventArgs e)
+        {
+            CommandBus.SendRevision(new SpreadsheetEngine.RevisionCommand("UNDO"));
+        }
+
+        private void RedoToolStripMenuItem_Click(object? sender, EventArgs e)
+        {
+            CommandBus.SendRevision(new SpreadsheetEngine.RevisionCommand("REDO"));
+        }
+
+        private void OnContextChangeColor(object? sender, EventArgs e)
+        {
+            using var colorDialog = new ColorDialog();
+            if (colorDialog.ShowDialog() == DialogResult.OK)
+            {
+                foreach (DataGridViewCell cell in this.Grid.SelectedCells)
+                {
+                    Cell? cell1 = this.spreadsheet.GetCell(cell.RowIndex, cell.ColumnIndex);
+                    if (cell1 == null)
+                    {
+                        continue;
+                    }
+
+                    CommandBus.Send(new SpreadsheetEngine.CellUpdateCommand<uint>(
+                        cell1, "Color", cell1.Color, (uint)colorDialog.Color.ToArgb(), "Edit Cell Color"));
+                }
+            }
+        }
+
+        private void Grid_MouseClick(object? sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                if (this.Grid.SelectedCells.Count > 0)
+                {
+                    this.cellContextMenu.Show(this.Grid, e.Location);
+                }
+            }
+        }
+    }
+}

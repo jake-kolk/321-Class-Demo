@@ -1,0 +1,111 @@
+﻿// <copyright file="CommandManager.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
+
+namespace SpreadsheetEngine
+{
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
+
+    public class CommandManager
+    {
+        private readonly Stack<Command> undo;
+        private readonly Stack<Command> redo;
+
+        public event EventHandler<Command> CommandReceived;
+
+        public event EventHandler<RevisionCommand> RevisionCommandReceived;
+
+        public event EventHandler<Command> UndoRedoStateChanged;
+
+        public CommandManager()
+        {
+            this.undo = new Stack<Command>(); // Inverse of commands sent
+            this.redo = new Stack<Command>();
+            CommandBus.CommandSent += this.OnCommandSent;
+            CommandBus.RevisionCommandSent += this.OnRevisionCommandSent;
+        }
+
+        private void OnCommandSent(object? sender, Command command)
+        {
+            this.redo.Clear();
+            Command commandInverse = (Command)command.GetInverse();
+            this.undo.Push(commandInverse);
+            command.Execute();
+            this.UndoRedoStateChanged.Invoke(this, command);
+        }
+
+        private void OnRevisionCommandSent(object? sender, Command command)
+        {
+            RevisionCommand rCommand = (RevisionCommand)command;
+            switch (rCommand.GetDirection())
+            {
+                case "REDO":
+                    this.DoRedo();
+                    break;
+                case "UNDO":
+                    this.DoUndo();
+                    break;
+            }
+
+            this.UndoRedoStateChanged.Invoke(this, command);
+        }
+
+        public void DoUndo() // On undo sent TO here
+        {
+            if (this.undo.Count == 0)
+            {
+                return;
+            }
+
+            Command undoCommand = this.undo.Pop();
+            this.redo.Push((Command)undoCommand.GetInverse());
+            undoCommand.Execute();
+        }
+
+        public void DoRedo()
+        {
+            if (this.redo.Count == 0)
+            {
+                return;
+            }
+
+            Command redoCommand = this.redo.Pop();
+            this.undo.Push((Command)redoCommand.GetInverse());
+            redoCommand.Execute();
+        }
+
+        public bool CanRedo()
+        {
+            return this.redo.Count > 0;
+        }
+
+        public bool CanUndo()
+        {
+            return this.undo.Count > 0;
+        }
+
+        public string GetUndoPurpose()
+        {
+            if (this.undo.Count == 0)
+            {
+                return string.Empty;
+            }
+
+            return this.undo.Peek().Purpose;
+        }
+
+        public string GetRedoPurpose()
+        {
+            if (this.redo.Count == 0)
+            {
+                return string.Empty;
+            }
+
+            return this.redo.Peek().Purpose;
+        }
+    }
+}

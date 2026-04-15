@@ -1,0 +1,66 @@
+﻿// <copyright file="CellUpdateCommand.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
+
+namespace SpreadsheetEngine
+{
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics.Metrics;
+    using System.Linq;
+    using System.Reflection;
+    using System.Reflection;
+    using System.Text;
+    using System.Threading.Tasks;
+
+    public class CellUpdateCommand<T> : Command
+    {
+        protected readonly T after;
+        protected readonly T before;
+        private readonly Cell cell;
+        private readonly (string, Type)? commandType = null; // (name of property changed, type of changed property)
+
+        // private static (string, Type) GetCommandType()
+        public CellUpdateCommand(
+            Cell cell,
+            string propertyName,
+            T before,
+            T after,
+            string purpose)
+            : base(purpose)
+        {
+            this.after = after;
+            this.before = before;
+
+            this.cell = cell;
+
+            // Load valid properties to modify from assembly, make sure propertyName is valid
+            Type type = typeof(Cell);
+            var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                         .Select(p => new { p.Name, Type = p.PropertyType });
+
+            foreach (var prop in properties)
+            {
+                if (prop.Type == typeof(T) && prop.Name == propertyName)
+                {
+                    this.commandType = (prop.Name, prop.Type);
+                }
+            }
+
+            if (this.commandType == null)
+            {
+                throw new ArgumentException($"Property name '{propertyName}' is not valid for Cell.");
+            }
+        }
+
+        public override void Execute()
+        {
+            this.cell.GetType().GetProperty(this.commandType?.Item1)?.SetValue(this.cell, this.after);
+        }
+
+        public override CellUpdateCommand<T> GetInverse()
+        {
+            return new CellUpdateCommand<T>(this.cell, this.commandType?.Item1, this.after, this.before, this.Purpose);
+        }
+    }
+}

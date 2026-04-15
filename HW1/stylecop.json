@@ -1,0 +1,13 @@
+{
+  "settings": {
+    "documentationRules": {
+      "companyName": "WSU",
+      "copyrightText": "<copyright file=\"{fileName}\" company=\"WSU\">\nCopyright (c) WSU. All rights reserved.\n</copyright>"
+    }
+  },
+  "rules": {
+    "SA1636": {
+      "severity": "none"
+    }
+  }
+}

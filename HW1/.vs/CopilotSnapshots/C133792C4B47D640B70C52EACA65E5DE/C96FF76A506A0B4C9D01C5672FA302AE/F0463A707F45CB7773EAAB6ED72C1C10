@@ -1,0 +1,40 @@
+﻿// <copyright file="CommandBus.cs" company="WSU">
+// Copyright (c) WSU. All rights reserved.
+// </copyright>
+
+namespace SpreadsheetEngine
+{
+    /// <summary>
+    /// Publishes spreadsheet commands to subscribers.
+    /// </summary>
+    public class CommandBus
+    {
+        /// <summary>
+        /// Occurs when a standard command is sent.
+        /// </summary>
+        public static event EventHandler<Command>? CommandSent;
+
+        /// <summary>
+        /// Occurs when a revision command (undo/redo) is sent.
+        /// </summary>
+        public static event EventHandler<RevisionCommand>? RevisionCommandSent;
+
+        /// <summary>
+        /// Sends a standard command.
+        /// </summary>
+        /// <param name="command">The command to send.</param>
+        public static void Send(Command command)
+        {
+            CommandSent?.Invoke(null, command);
+        }
+
+        /// <summary>
+        /// Sends an undo/redo command.
+        /// </summary>
+        /// <param name="command">The revision command to send.</param>
+        public static void SendRevision(RevisionCommand command)
+        {
+            RevisionCommandSent?.Invoke(null, command);
+        }
+    }
+}

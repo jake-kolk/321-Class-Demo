@@ -1,0 +1,36 @@
+﻿// <copyright file="RevisionCommand.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
+
+namespace SpreadsheetEngine
+{
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
+
+    // This can be undo or redo command
+    public class RevisionCommand : Command
+    {
+        private readonly string direction;
+
+        public RevisionCommand(string direction) // Direction = UNDO/REDO
+            : base("UNDO/REDO") // Purpose is self explanatory, so just set it to UNDO/REDO
+        {
+            if (direction != "UNDO" && direction != "REDO")
+            {
+                throw new ArgumentOutOfRangeException(nameof(direction), direction, "Must be REDO or UNDO!");
+            }
+            else
+            {
+                this.direction = direction;
+            }
+        }
+
+        public string GetDirection()
+        {
+            return this.direction;
+        }
+    }
+}

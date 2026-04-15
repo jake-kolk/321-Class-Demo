@@ -1,0 +1,38 @@
+﻿// <copyright file="Command.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
+
+namespace SpreadsheetEngine
+{
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Runtime.CompilerServices;
+    using System.Text;
+    using System.Threading.Tasks;
+
+    public abstract class Command
+    {
+        public readonly string Purpose;
+
+        public Command(string purpose)
+        {
+            this.Purpose = purpose;
+        }
+
+        public virtual void Execute()
+        {
+            return;
+        }
+
+        public virtual object GetInverse()
+        {
+            return null;
+        }
+
+        public string GetPurpose()
+        {
+            return this.Purpose;
+        }
+    }
+}

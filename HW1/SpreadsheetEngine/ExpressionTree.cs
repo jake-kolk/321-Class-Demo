@@ -1,0 +1,243 @@
+﻿// <copyright file="ExpressionTree.cs" company="WSU">
+// Copyright (c) WSU. All rights reserved.
+// </copyright>
+
+namespace SpreadsheetEngine
+{
+    using System;
+    using System.Collections.Generic;
+    using System.Linq.Expressions;
+
+    /// <summary>
+    /// Builds and evaluates an arithmetic expression tree using the Shunting Yard algorithm.
+    /// </summary>
+    public class ExpressionTree
+    {
+        /// <summary>Lambda for looking up variables in Spreadsheet. </summary>
+        private readonly Func<string, string> variableResolver;
+
+        /// <summary>The root node of the expression tree.</summary>
+        private readonly ExpressionTreeNode root;
+
+        /// <summary>Dictionary storing variable names and their values.</summary>
+        private readonly Dictionary<string, double> variables;
+
+        /// <summary>Factory for creating operator nodes.</summary>
+        private readonly OperatorNodeFactory factory = new ();
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ExpressionTree"/> class
+        /// With variableResolver for GUI program.
+        /// </summary>
+        /// <param name="expression">The arithmetic expression to parse.</param>
+        /// <param name="variableResolver">This is tor esolve variables for GUI app.</param>
+        public ExpressionTree(string expression, Func<string, string> variableResolver)
+        {
+            if (string.IsNullOrWhiteSpace(expression))
+            {
+                throw new ArgumentException("Expression cannot be null or whitespace.", nameof(expression));
+            }
+
+            ArgumentNullException.ThrowIfNull(variableResolver);
+
+            this.variables = new Dictionary<string, double>();
+            this.variableResolver = variableResolver;
+            this.root = this.BuildTree(expression);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ExpressionTree"/> class.
+        /// </summary>
+        /// <param name="expression">The arithmetic expression to parse.</param>
+        public ExpressionTree(string expression)
+            : this(expression, _ => "0")
+        {
+        }
+
+        /// <summary>
+        /// Sets a variable's value in the expression.
+        /// </summary>
+        /// <param name="variableName">The name of the variable.</param>
+        /// <param name="variableValue">The value to assign.</param>
+        public void SetVariable(string variableName, double variableValue)
+        {
+            if (string.IsNullOrWhiteSpace(variableName))
+            {
+                throw new ArgumentException("Variable name cannot be null or whitespace.", nameof(variableName));
+            }
+
+            this.variables[variableName] = variableValue;
+        }
+
+        /// <summary>
+        /// Gets the dictionary of variables and their current values.
+        /// </summary>
+        /// <returns>The variables dictionary.</returns>
+        public Dictionary<string, double> GetVariables()
+        {
+            return this.variables;
+        }
+
+        /// <summary>
+        /// Evaluates the expression tree.
+        /// </summary>
+        /// <returns>The result of the expression as a double.</returns>
+        public double Evaluate()
+        {
+            return this.root.Evaluate();
+        }
+
+        /// <summary>
+        /// Gets Dependencies.
+        /// </summary>
+        /// <returns>A List.<string> of dependencies.</string></returns>
+        public List<string> GetDependancies()
+        {
+            return this.variables.Keys.ToList();
+        }
+
+        /// <summary>
+        /// Builds the expression tree from a string using the Shunting Yard algorithm.
+        /// Uses two stacks - one for operators and one for operand nodes.
+        /// Operators are popped and applied when a lower/equal precedence operator is seen.
+        /// Basic flow.
+        /// If number or variable then push straight onto operand stack
+        /// '(' is pushed onto operator stack as a marker.
+        /// -
+        /// If operator then before pushing, pop and apply any operators on the stack that have higher or equal precedence
+        /// ')' is popped and apply operators until you hit the matching(
+        /// -
+        /// If End of expression then apply all remaining operators.
+        /// -
+        /// Loop back to top.
+        /// </summary>
+        /// <param name="expression">The arithmetic expression to parse.</param>
+        /// <returns>The root node of the completed expression tree.</returns>
+        private ExpressionTreeNode BuildTree(string expression)
+        {
+            // Stack holding operand nodes (constants and variables)
+            Stack<ExpressionTreeNode> operandStack = new ();
+
+            // Stack holding operator characters waiting to be applied
+            Stack<char> operatorStack = new ();
+
+            int position = 0;
+
+            while (position < expression.Length)
+            {
+                char current = expression[position];
+
+                if (current == '(')
+                {
+                    // Push opening parenthesis as a marker on the operator stack
+                    operatorStack.Push(current);
+                    position++;
+                }
+                else if (current == ')')
+                {
+                    // Pop and apply operators until we find the matching '('
+                    while (operatorStack.Count > 0 && operatorStack.Peek() != '(')
+                    {
+                        this.ApplyOperator(operatorStack.Pop(), operandStack);
+                    }
+
+                    // Remove the '(' from the stack
+                    if (operatorStack.Count > 0)
+                    {
+                        operatorStack.Pop();
+                    }
+
+                    position++;
+                }
+                else if (char.IsDigit(current))
+                {
+                    // Read the full number (may be multiple digits or decimal)
+                    int start = position;
+                    while (position < expression.Length &&
+                           (char.IsDigit(expression[position]) || expression[position] == '.'))
+                    {
+                        position++;
+                    }
+
+                    double value = double.Parse(expression[start..position]);
+                    operandStack.Push(new ConstantNode(value));
+                }
+                else if (char.IsLetter(current))
+                {
+                    // Read the full variable name (letters and digits)
+                    int start = position;
+                    while (position < expression.Length && char.IsLetterOrDigit(expression[position]))
+                    {
+                        position++;
+                    }
+
+                    string name = expression[start..position];
+                    var value = this.variableResolver(name);
+                    if (value == null || !double.TryParse(value, out double result))
+                    {
+                        throw new InvalidOperationException("!invalid ref " + name);
+                    }
+
+                    this.variables[name] = result;
+
+                    operandStack.Push(new VariableNode(name, this.variables));
+                }
+                else if (OperatorNodeFactory.IsOperator(current))
+                {
+                    // Pop and apply any operators on the stack with higher or equal precedence
+                    // This ensures correct precedence ordering in the tree
+                    while (operatorStack.Count > 0 &&
+                           operatorStack.Peek() != '(' &&
+                           OperatorNodeFactory.GetPrecedence(operatorStack.Peek()) >= OperatorNodeFactory.GetPrecedence(current))
+                    {
+                        this.ApplyOperator(operatorStack.Pop(), operandStack);
+                    }
+
+                    // Push the current operator to wait for its right operand
+                    operatorStack.Push(current);
+                    position++;
+                }
+                else
+                {
+                    // Skip unrecognized characters (e.g. spaces)
+                    position++;
+                }
+            }
+
+            // Apply any remaining operators on the stack
+            while (operatorStack.Count > 0)
+            {
+                this.ApplyOperator(operatorStack.Pop(), operandStack);
+            }
+
+            // The final node on the operand stack is the root of the tree
+            return operandStack.Pop();
+        }
+
+        /// <summary>
+        /// Pops two operands from the operand stack, creates an operator node
+        /// using the factory, and pushes the resulting subtree back onto the stack.
+        /// </summary>
+        /// <param name="op">The operator character to apply.</param>
+        /// <param name="operandStack">The stack of operand nodes.</param>
+        private void ApplyOperator(char op, Stack<ExpressionTreeNode> operandStack)
+        {
+            // Right operand is on top of the stack and left operand is below it
+            if (operandStack.Count < 2)
+            {
+                return;
+            }
+            else
+            {
+                ExpressionTreeNode right = operandStack.Pop();
+                ExpressionTreeNode left = operandStack.Pop();
+
+                OperatorNode operatorNode = this.factory.CreateOperatorNode(op);
+                operatorNode.Left = left;
+                operatorNode.Right = right;
+
+                operandStack.Push(operatorNode);
+            }
+        }
+    }
+}

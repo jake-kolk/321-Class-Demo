@@ -1,0 +1,62 @@
+﻿// <copyright file="CellUpdateCommand.cs" company="WSU">
+// Copyright (c) WSU. All rights reserved.
+// </copyright>
+
+namespace SpreadsheetEngine
+{
+    using System;
+    using System.Reflection;
+
+    /// <summary>
+    /// Represents a command that updates a single property on a cell.
+    /// </summary>
+    /// <typeparam name="T">The property type being changed.</typeparam>
+    public class CellUpdateCommand<T> : Command
+    {
+        private readonly T after;
+        private readonly T before;
+        private readonly Cell cell;
+        private readonly string propertyName;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CellUpdateCommand{T}"/> class.
+        /// </summary>
+        /// <param name="cell">The target cell.</param>
+        /// <param name="propertyName">The property to set.</param>
+        /// <param name="before">The value before the update.</param>
+        /// <param name="after">The value after the update.</param>
+        /// <param name="purpose">The user-visible purpose string.</param>
+        public CellUpdateCommand(
+            Cell cell,
+            string propertyName,
+            T before,
+            T after,
+            string purpose)
+            : base(purpose)
+        {
+            this.after = after;
+            this.before = before;
+            this.cell = cell;
+
+            PropertyInfo? property = typeof(Cell).GetProperty(propertyName, BindingFlags.Public | BindingFlags.Instance);
+            if (property == null || property.PropertyType != typeof(T))
+            {
+                throw new ArgumentException($"Property name '{propertyName}' is not valid for Cell.");
+            }
+
+            this.propertyName = propertyName;
+        }
+
+        /// <inheritdoc/>
+        public override void Execute()
+        {
+            this.cell.GetType().GetProperty(this.propertyName)?.SetValue(this.cell, this.after);
+        }
+
+        /// <inheritdoc/>
+        public override Command GetInverse()
+        {
+            return new CellUpdateCommand<T>(this.cell, this.propertyName, this.after, this.before, this.Purpose);
+        }
+    }
+}
