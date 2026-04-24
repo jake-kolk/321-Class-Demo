@@ -1,8 +1,0 @@
-﻿<Project>
-	<ItemGroup>
-		<AdditionalFiles Include="$(MSBuildThisFileDirectory)stylecop.json" />
-	</ItemGroup>
-	<PropertyGroup>
-		<NoWarn>$(NoWarn);SA1636</NoWarn>
-	</PropertyGroup>
-</Project>
