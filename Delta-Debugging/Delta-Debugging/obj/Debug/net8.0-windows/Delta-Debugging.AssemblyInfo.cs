@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Delta-Debugging")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+49b5eeed9937c453a7065a684f971dd926b4edec")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+430429bcdb989f689d3c0aee554fd7c175b05fae")]
 [assembly: System.Reflection.AssemblyProductAttribute("Delta-Debugging")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Delta-Debugging")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
