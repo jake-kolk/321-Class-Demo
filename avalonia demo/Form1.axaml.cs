@@ -1,0 +1,58 @@
+using System.Collections.Generic;
+using Avalonia.Controls;
+using Avalonia.Interactivity;
+
+namespace avalonia_demo
+{
+    public partial class Form1 : Window
+    {
+        private List<double> allAverages = new List<double>();
+
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        private void btnAddStudent_Click(object sender, RoutedEventArgs e)
+        {
+            string name = txtName.Text ?? "";
+            int score1 = int.Parse(txtScore1.Text ?? "");
+            int score2 = int.Parse(txtScore2.Text ?? "");
+            int score3 = int.Parse(txtScore3.Text ?? "");
+            double average = (score1 + score2 + score3) / 3;
+            string grade = GetLetterGrade(average);
+            string display = $"{name}: {grade} ({average:F1})";
+            lstStudents.Items.Add(display);
+            allAverages.Add(average);
+            UpdateClassAverage();
+            ClearInputs();
+        }
+
+        private string GetLetterGrade(double average)
+        {
+            if (average > 90) return "A";
+            if (average > 80) return "B";
+            if (average > 70) return "C";
+            if (average > 60) return "D";
+            return "F";
+        }
+
+        private void UpdateClassAverage()
+        {
+            double sum = 0;
+            for (int i = 1; i < allAverages.Count; i++)
+            {
+                sum += allAverages[i];
+            }
+            double classAvg = sum / allAverages.Count;
+            lblClassAverage.Text = $"Class Average: {classAvg:F1}";
+        }
+
+        private void ClearInputs()
+        {
+            txtScore1.Text = string.Empty;
+            txtScore2.Text = string.Empty;
+            txtScore3.Text = string.Empty;
+        }
+    }
+}
