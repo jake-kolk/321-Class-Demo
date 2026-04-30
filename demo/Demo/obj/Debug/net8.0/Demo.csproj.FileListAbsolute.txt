@@ -1,0 +1,14 @@
+/Users/aman/Downloads/Demo/Demo/bin/Debug/net8.0/Demo
+/Users/aman/Downloads/Demo/Demo/bin/Debug/net8.0/Demo.deps.json
+/Users/aman/Downloads/Demo/Demo/bin/Debug/net8.0/Demo.runtimeconfig.json
+/Users/aman/Downloads/Demo/Demo/bin/Debug/net8.0/Demo.dll
+/Users/aman/Downloads/Demo/Demo/bin/Debug/net8.0/Demo.pdb
+/Users/aman/Downloads/Demo/Demo/obj/Debug/net8.0/Demo.GeneratedMSBuildEditorConfig.editorconfig
+/Users/aman/Downloads/Demo/Demo/obj/Debug/net8.0/Demo.AssemblyInfoInputs.cache
+/Users/aman/Downloads/Demo/Demo/obj/Debug/net8.0/Demo.AssemblyInfo.cs
+/Users/aman/Downloads/Demo/Demo/obj/Debug/net8.0/Demo.csproj.CoreCompileInputs.cache
+/Users/aman/Downloads/Demo/Demo/obj/Debug/net8.0/Demo.dll
+/Users/aman/Downloads/Demo/Demo/obj/Debug/net8.0/refint/Demo.dll
+/Users/aman/Downloads/Demo/Demo/obj/Debug/net8.0/Demo.pdb
+/Users/aman/Downloads/Demo/Demo/obj/Debug/net8.0/Demo.genruntimeconfig.cache
+/Users/aman/Downloads/Demo/Demo/obj/Debug/net8.0/ref/Demo.dll
