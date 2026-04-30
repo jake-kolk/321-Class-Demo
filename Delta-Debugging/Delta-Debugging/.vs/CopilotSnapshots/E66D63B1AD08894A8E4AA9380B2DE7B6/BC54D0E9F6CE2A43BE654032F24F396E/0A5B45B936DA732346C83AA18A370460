@@ -1,0 +1,81 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Windows.Forms;
+
+namespace Delta_Debugging
+{
+    public partial class Form1 : Form
+    {
+        // Dictionary to store student names and their averages
+        private Dictionary<string, double> studentAverages = new Dictionary<string, double>();
+
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        private void btnAddStudent_Click(object sender, EventArgs e)
+        {
+            // Get input values
+            string name = txtName.Text;
+
+            // Parse scores
+            if (!int.TryParse(txtScore1.Text, out int score1) ||
+                !int.TryParse(txtScore2.Text, out int score2) ||
+                !int.TryParse(txtScore3.Text, out int score3))
+            {
+                MessageBox.Show("Please enter valid numbers for all scores.");
+                return;
+            }
+
+            if (string.IsNullOrEmpty(name))
+            {
+                MessageBox.Show("Please enter a name.");
+                return;
+            }
+
+            // Calculate average - BUG #1: Integer division
+            double average = (score1 + score2 + score3) / 3;
+
+            // Store the student's average
+            studentAverages[name] = average;
+
+            // Update the ListBox
+            lstStudents.Items.Clear();
+            foreach (var entry in studentAverages)
+            {
+                lstStudents.Items.Add($"{entry.Key}: {entry.Value:F2}");
+            }
+
+            // Update class average
+            UpdateClassAverage();
+
+            // Clear input fields
+            txtName.Clear();
+            txtScore1.Clear();
+            txtScore2.Clear();
+            txtScore3.Clear();
+        }
+
+        private void UpdateClassAverage()
+        {
+            // BUG #2: Loop starts at 1 instead of 0, skipping first student
+            List<double> allAverages = new List<double>(studentAverages.Values);
+
+            if (allAverages.Count == 0)
+            {
+                lblClassAverage.Text = "Class Average: 0";
+                return;
+            }
+
+            double classAvg = 0;
+            for (int i = 1; i < allAverages.Count; i++)
+            {
+                classAvg += allAverages[i];
+            }
+            classAvg /= allAverages.Count;
+
+            lblClassAverage.Text = $"Class Average: {classAvg:F2}";
+        }
+    }
+}

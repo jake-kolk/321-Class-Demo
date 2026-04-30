@@ -1,0 +1,159 @@
+﻿namespace Delta_Debugging
+{
+    partial class Form1
+    {
+        /// <summary>
+        ///  Required designer variable.
+        /// </summary>
+        private System.ComponentModel.IContainer components = null;
+
+        /// <summary>
+        ///  Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
+                components.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
+        #region Windows Form Designer generated code
+
+        /// <summary>
+        ///  Required method for Designer support - do not modify
+        ///  the contents of this method with the code editor.
+        /// </summary>
+        private void InitializeComponent()
+        {
+            this.lblName = new System.Windows.Forms.Label();
+            this.txtName = new System.Windows.Forms.TextBox();
+            this.lblScore1 = new System.Windows.Forms.Label();
+            this.txtScore1 = new System.Windows.Forms.TextBox();
+            this.lblScore2 = new System.Windows.Forms.Label();
+            this.txtScore2 = new System.Windows.Forms.TextBox();
+            this.lblScore3 = new System.Windows.Forms.Label();
+            this.txtScore3 = new System.Windows.Forms.TextBox();
+            this.btnAddStudent = new System.Windows.Forms.Button();
+            this.lstStudents = new System.Windows.Forms.ListBox();
+            this.lblClassAverage = new System.Windows.Forms.Label();
+            this.SuspendLayout();
+
+            // lblName
+            this.lblName.AutoSize = true;
+            this.lblName.Location = new System.Drawing.Point(12, 15);
+            this.lblName.Name = "lblName";
+            this.lblName.Size = new System.Drawing.Size(38, 15);
+            this.lblName.TabIndex = 0;
+            this.lblName.Text = "Name:";
+
+            // txtName
+            this.txtName.Location = new System.Drawing.Point(60, 12);
+            this.txtName.Name = "txtName";
+            this.txtName.Size = new System.Drawing.Size(200, 23);
+            this.txtName.TabIndex = 1;
+
+            // lblScore1
+            this.lblScore1.AutoSize = true;
+            this.lblScore1.Location = new System.Drawing.Point(12, 45);
+            this.lblScore1.Name = "lblScore1";
+            this.lblScore1.Size = new System.Drawing.Size(50, 15);
+            this.lblScore1.TabIndex = 2;
+            this.lblScore1.Text = "Score 1:";
+
+            // txtScore1
+            this.txtScore1.Location = new System.Drawing.Point(60, 42);
+            this.txtScore1.Name = "txtScore1";
+            this.txtScore1.Size = new System.Drawing.Size(200, 23);
+            this.txtScore1.TabIndex = 3;
+
+            // lblScore2
+            this.lblScore2.AutoSize = true;
+            this.lblScore2.Location = new System.Drawing.Point(12, 75);
+            this.lblScore2.Name = "lblScore2";
+            this.lblScore2.Size = new System.Drawing.Size(50, 15);
+            this.lblScore2.TabIndex = 4;
+            this.lblScore2.Text = "Score 2:";
+
+            // txtScore2
+            this.txtScore2.Location = new System.Drawing.Point(60, 72);
+            this.txtScore2.Name = "txtScore2";
+            this.txtScore2.Size = new System.Drawing.Size(200, 23);
+            this.txtScore2.TabIndex = 5;
+
+            // lblScore3
+            this.lblScore3.AutoSize = true;
+            this.lblScore3.Location = new System.Drawing.Point(12, 105);
+            this.lblScore3.Name = "lblScore3";
+            this.lblScore3.Size = new System.Drawing.Size(50, 15);
+            this.lblScore3.TabIndex = 6;
+            this.lblScore3.Text = "Score 3:";
+
+            // txtScore3
+            this.txtScore3.Location = new System.Drawing.Point(60, 102);
+            this.txtScore3.Name = "txtScore3";
+            this.txtScore3.Size = new System.Drawing.Size(200, 23);
+            this.txtScore3.TabIndex = 7;
+
+            // btnAddStudent
+            this.btnAddStudent.Location = new System.Drawing.Point(60, 135);
+            this.btnAddStudent.Name = "btnAddStudent";
+            this.btnAddStudent.Size = new System.Drawing.Size(200, 30);
+            this.btnAddStudent.TabIndex = 8;
+            this.btnAddStudent.Text = "Add Student";
+            this.btnAddStudent.UseVisualStyleBackColor = true;
+            this.btnAddStudent.Click += new System.EventHandler(this.btnAddStudent_Click);
+
+            // lstStudents
+            this.lstStudents.FormattingEnabled = true;
+            this.lstStudents.ItemHeight = 15;
+            this.lstStudents.Location = new System.Drawing.Point(12, 175);
+            this.lstStudents.Name = "lstStudents";
+            this.lstStudents.Size = new System.Drawing.Size(248, 94);
+            this.lstStudents.TabIndex = 9;
+
+            // lblClassAverage
+            this.lblClassAverage.AutoSize = true;
+            this.lblClassAverage.Location = new System.Drawing.Point(12, 280);
+            this.lblClassAverage.Name = "lblClassAverage";
+            this.lblClassAverage.Size = new System.Drawing.Size(93, 15);
+            this.lblClassAverage.TabIndex = 10;
+            this.lblClassAverage.Text = "Class Average: 0";
+
+            // Form1
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.lblClassAverage);
+            this.Controls.Add(this.lstStudents);
+            this.Controls.Add(this.btnAddStudent);
+            this.Controls.Add(this.txtScore3);
+            this.Controls.Add(this.lblScore3);
+            this.Controls.Add(this.txtScore2);
+            this.Controls.Add(this.lblScore2);
+            this.Controls.Add(this.txtScore1);
+            this.Controls.Add(this.lblScore1);
+            this.Controls.Add(this.txtName);
+            this.Controls.Add(this.lblName);
+            this.Name = "Form1";
+            this.Text = "Student Grade Tracker";
+            this.ResumeLayout(false);
+            this.PerformLayout();
+        }
+
+        #endregion
+
+        private System.Windows.Forms.Label lblName;
+        private System.Windows.Forms.TextBox txtName;
+        private System.Windows.Forms.Label lblScore1;
+        private System.Windows.Forms.TextBox txtScore1;
+        private System.Windows.Forms.Label lblScore2;
+        private System.Windows.Forms.TextBox txtScore2;
+        private System.Windows.Forms.Label lblScore3;
+        private System.Windows.Forms.TextBox txtScore3;
+        private System.Windows.Forms.Button btnAddStudent;
+        private System.Windows.Forms.ListBox lstStudents;
+        private System.Windows.Forms.Label lblClassAverage;
+    }
+}
