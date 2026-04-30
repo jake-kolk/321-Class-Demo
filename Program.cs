@@ -37,20 +37,6 @@ namespace _321_class_demo
 
             Console.WriteLine("Total positive: " + total); 
             Console.WriteLine("Final array: " + string.Join(", ", data));
-
-            // Problem.
-            int[] scores = { 80, 95, 72, 95, 88, 72, 95 };
-            int target = 95;
-            // Expected: 3, Actual: 2
-            Console.WriteLine("Count: " + CountOccurrences(scores, target));
-        }
-
-        static int CountOccurrences(int[] arr, int target) {
-            int count = 0;
-            for (int i = 0; i < arr.Length - 1; i++) {
-                if (arr[i] == target) count++;
-            }
-            return count;
         }
     }
 }
