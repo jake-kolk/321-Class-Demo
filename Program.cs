@@ -36,7 +36,7 @@ namespace _321_class_demo
             int total = SumPositive(data);
 
             Console.WriteLine("Total positive: " + total); 
-            Console.WriteLine("Final array: " + string.Join(", ", data));
+            // Console.WriteLine("Final array: " + string.Join(", ", data));
         }
     }
 }
